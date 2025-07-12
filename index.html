@@ -3,171 +3,114 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MoodWave – LoFi Beats</title>
+  <title>Wish Generator - MoodWave Wishes</title>
   <style>
     body {
       margin: 0;
-      background: #0d0b1f;
-      color: #f0f0f0;
+      background: linear-gradient(to bottom right, #1a1333, #3c1a4f);
+      color: #fff;
       font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      flex-direction: column;
+      text-align: center;
     }
 
-    header {
-      padding: 20px;
-      text-align: center;
-      background: linear-gradient(to right, #a18cd1, #fbc2eb);
+    h1 {
+      background: linear-gradient(to right, #ff9ec4, #b28fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    form {
+      background: #2d2043;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px #a64ac9cc;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-size: 1em;
+    }
+
+    input, select {
+      margin-top: 5px;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      background: #463266;
       color: #fff;
     }
 
-    header h1 {
-      margin: 0;
-      font-size: 2.5em;
-    }
-
-    header p {
-      font-size: 1.1em;
-    }
-
-    .search-bar {
-      text-align: center;
-      margin: 20px auto 0;
-    }
-
-    .search-bar input {
-      width: 80%;
-      max-width: 400px;
-      padding: 10px;
+    button {
+      margin-top: 20px;
+      background: #ff9ec4;
+      color: #1a1333;
       border: none;
+      padding: 10px 20px;
       border-radius: 8px;
-      background: #1b1a2e;
-      color: #f0f0f0;
       font-size: 1em;
-      box-shadow: 0 0 10px #8a2be244;
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
 
-    .container {
-      padding: 30px 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 30px;
+    button:hover {
+      background: #b28fff;
     }
 
-    .song {
-      background: #1b1a2e;
-      border-radius: 15px;
-      overflow: hidden;
-      box-shadow: 0 0 12px #8a2be244;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .song img {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    .song-content {
-      padding: 15px;
-      flex-grow: 1;
-    }
-
-    .song h3 {
-      margin: 10px 0 5px;
-      color: #fbc2eb;
-      font-size: 1.1em;
-    }
-
-    .song p {
-      margin: 0 0 10px;
-      color: #b3b3b3;
-      font-size: 0.9em;
-    }
-
-    audio {
-      width: 100%;
-    }
-
-    footer {
-      text-align: center;
-      padding: 20px;
-      font-size: 14px;
-      color: #999;
+    #qrContainer {
+      margin-top: 30px;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>MoodWave</h1>
-    <p>Chill Sinhala LoFi Vibes ✨</p>
-  </header>
+  <h1>MoodWave Wishes</h1>
+  <form id="wishForm">
+    <label for="name">Recipient's Name:</label>
+    <input type="text" id="name" required>
 
-  <div class="search-bar">
-    <input type="text" id="search" placeholder="Search LoFi tracks...">
-  </div>
+    <label for="style">Select Wish Style:</label>
+    <select id="style">
+      <option value="hack">Hacker Vibe (Pink & Purple)</option>
+      <!-- More styles can be added here -->
+    </select>
 
-  <main class="container" id="music-list">
-    <!-- Songs will be rendered by JavaScript -->
-  </main>
+    <button type="submit">Generate Wish</button>
+  </form>
 
-  <footer>
-    &copy; 2025 MoodWave. Made with ♥ in Sri Lanka.
-  </footer>
+  <div id="qrContainer"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script>
-    const songs = [
-      {
-        title: "Oba Magemai (LoFi Remix)",
-        artist: "ThaRinDu G",
-        cover: "https://i.postimg.cc/fWfN8d5D/oba-magemai.jpg",
-        file: "https://example.com/oba-magemai.mp3"
-      },
-      {
-        title: "Pem Kekula (LoFi)",
-        artist: "LoFi SL",
-        cover: "https://i.postimg.cc/DzvqFgNS/pem-kekula.jpg",
-        file: "https://example.com/pem-kekula.mp3"
-      },
-      {
-        title: "Sansun Gathiya (Slowed)",
-        artist: "MoodWave",
-        cover: "https://i.postimg.cc/fy8bKfTx/sansun-gathiya.jpg",
-        file: "https://example.com/sansun.mp3"
-      }
-    ];
+    const form = document.getElementById('wishForm');
+    const qrContainer = document.getElementById('qrContainer');
 
-    const container = document.getElementById("music-list");
-    const search = document.getElementById("search");
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
 
-    function renderSongs(filter = "") {
-      container.innerHTML = "";
-      const filteredSongs = songs.filter(song =>
-        song.title.toLowerCase().includes(filter.toLowerCase()) ||
-        song.artist.toLowerCase().includes(filter.toLowerCase())
-      );
-      filteredSongs.forEach(song => {
-        const div = document.createElement("div");
-        div.className = "song";
-        div.innerHTML = `
-          <img src="${song.cover}" alt="${song.title} Cover">
-          <div class="song-content">
-            <h3>${song.title}</h3>
-            <p><i>${song.artist}</i></p>
-            <audio controls loop>
-              <source src="${song.file}" type="audio/mpeg">
-              Your browser does not support the audio tag.
-            </audio>
-          </div>
-        `;
-        container.appendChild(div);
+      const name = document.getElementById('name').value.trim();
+      const style = document.getElementById('style').value;
+
+      if (!name) return alert("Please enter a name");
+
+      const baseURL = window.location.origin + '/wish_' + style + '.html?name=' + encodeURIComponent(name);
+
+      QRCode.toCanvas(document.createElement('canvas'), baseURL, function (err, canvas) {
+        if (err) return console.error(err);
+        qrContainer.innerHTML = '<h3>Scan this QR Code</h3>';
+        qrContainer.appendChild(canvas);
       });
-    }
-
-    search.addEventListener("input", e => {
-      renderSongs(e.target.value);
     });
-
-    renderSongs();
   </script>
 </body>
 </html>
